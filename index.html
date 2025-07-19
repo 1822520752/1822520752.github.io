@@ -805,7 +805,7 @@ function resetTimer() {
             // 天气系统代码
             // 1. 访问 https://www.yiketianqi.com/ 注册账号并获取API密钥
             // 2. 将API密钥替换下方的 'YOUR_API_KEY'
-            const API_KEY = "appid=82844554&appsecret=Ie9i812G";// 请替换为易客云API密钥
+            const API_KEY = "82844554Ie9i812G";// 请替换为易客云API密钥
             const weatherContainer = document.querySelector('.weather-container');
             const locationElement = document.querySelector('.location');
             const temperatureElement = document.querySelector('.temperature');
@@ -849,14 +849,24 @@ function resetTimer() {
                 fetch(url)
                     .then(response => response.json())
                     .then(data => {
+                        console.log('天气API响应:', data);
                         if (data.code === 200) {
                             displayWeather(data);
+                        } else if (data.code === 1003) {
+                            showError('API密钥无效或已过期');
+                        } else if (data.code === 1004) {
+                            showError('API请求次数超限');
                         } else {
-                            showError('获取天气数据失败');
+                            showError(`API错误: ${data.msg || '未知错误'}`);
                         }
                     })
                     .catch(error => {
-                        showError('网络错误，无法获取天气');
+                        console.error('网络请求错误:', error);
+                        if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                            showError('网络连接失败，请检查网络设置');
+                        } else {
+                            showError('获取天气数据失败');
+                        }
                     });
             }
 
@@ -876,6 +886,12 @@ function resetTimer() {
                 conditionElement.textContent = '';
                 humidityElement.textContent = '';
                 windElement.textContent = '';
+                // 添加错误详情显示
+                console.error('天气获取失败:', message);
+                // 显示调试信息
+                if (API_KEY === 'YOUR_API_KEY') {
+                    locationElement.textContent = '请先获取并设置API密钥';
+                }
             }
         </script>
 </body>
