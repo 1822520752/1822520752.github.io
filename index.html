@@ -341,6 +341,7 @@
     </style>
 </head>
 <body>
+
     <div class="container">
         <header>
             <h1>羽毛球极速记分板</h1>
@@ -484,7 +485,7 @@
     </div>
 
     <footer>
-        <p>设计者：亍幵 | 开发者：亍幵 南北</p>
+        <p style="font-family: 'Brush Script MT', cursive; font-size: 1.2em;">设计者：亍幵（张鑫）南北<br>开发者：亍幵（张鑫）<br>QQ: 1822520752 (建议联系)</p>
     </footer>
 
     <script>
@@ -560,6 +561,10 @@ function resetTimer() {
 
         // Scoreboard functions
         function updateScore(team, amount) {
+            if (!timerRunning) {
+                alert('请先点击"开始比赛"才能调整比分');
+                return;
+            }
             if (team === 'a') {
                 scoreA = Math.max(0, scoreA + amount);
                 document.getElementById('team-a-score').textContent = scoreA;
@@ -788,5 +793,7 @@ function resetTimer() {
             localStorage.setItem('expenseHistory', JSON.stringify(expenseHistory));
         }
     </script>
+
+
 </body>
 </html>
