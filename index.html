@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>羽毛球极速记分板</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            color: var(--primary-color);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #3498db, #e74c3c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-family: 'Arial Black', 'Microsoft YaHei', sans-serif;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #777;
+            font-style: italic;
+            border-top: 1px dashed #ddd;
+        }
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+        }
+        /* Scoreboard styles */
+        .scoreboard {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .score-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        .team-container {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            width: 100%;
+        }
+        .team {
+            text-align: center;
+        }
+        .team-name {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .score {
+            font-size: 5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 5px solid var(--dark-color);
+            border-radius: 10px;
+            margin: 0 auto 20px;
+        }
+        .score-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-danger {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .btn-dark {
+            background-color: var(--dark-color);
+            color: white;
+        }
+        .btn-dark:hover {
+            background-color: #2c3e50;
+        }
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        /* Result card styles */
+        .result-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .result-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+        .result-score {
+            font-size: 3rem;
+            margin: 20px 0;
+        }
+        /* Grouping styles */
+        .grouping-container {
+            padding: 20px;
+        }
+        .players-input {
+            margin-bottom: 20px;
+        }
+        .players-input textarea {
+            width: 100%;
+            height: 100px;
+            padding: 15px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            resize: none;
+        }
+        .group-results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .group-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            width: 250px;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            position: relative;
+            height: 150px;
+        }
+        .group-card.flipped {
+            transform: rotateY(180deg);
+        }
+        .group-card-front, .group-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .group-card-back {
+            transform: rotateY(180deg);
+        }
+        .group-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        /* Expense tracker styles */
+        .expense-tracker {
+            padding: 20px;
+        }
+        .expense-form {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        .participants-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .participant-checkbox {
+            display: none;
+        }
+        .participant-label {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #eee;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .participant-checkbox:checked + .participant-label {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        .expense-result {
+            margin-top: 30px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .expense-summary {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        .expense-details {
+            margin-top: 20px;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            list-style: none;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+        }
+        .nav-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        .nav-tab.active {
+            border-bottom-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .score-display {
+                flex-direction: column;
+                gap: 30px;
+            }
+            .score {
+                font-size: 4rem;
+                width: 120px;
+                height: 120px;
+            }
+            .control-panel {
+                flex-wrap: wrap;
+            }
+            .btn {
+                padding: 12px 24px;
+                font-size: 1rem;
+            }
+        }
+        /* Landscape mode for score projection */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .scoreboard {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            .score-display {
+                margin-bottom: 20px;
+            }
+            .score {
+                font-size: 3.5rem;
+                width: 100px;
+                height: 100px;
+            }
+            .team-name {
+                font-size: 1.2rem;
+            }
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>羽毛球极速记分板</h1>
+        </header>
+
+        <ul class="nav-tabs">
+            <li class="nav-tab active" data-screen="scoreboard">记分板</li>
+            <li class="nav-tab" data-screen="grouping">智能分组</li>
+            <li class="nav-tab" data-screen="expense">费用计算</li>
+        </ul>
+
+        <!-- Scoreboard Screen -->
+        <div id="scoreboard" class="screen active">
+            <div class="scoreboard">
+                <div class="score-display">
+                    <div style="text-align: center; width: 100%; margin-bottom: 20px;">
+                        <span style="font-size: 1.5rem; font-weight: bold;">比赛时长: </span>
+                        <span id="match-timer" style="font-size: 1.5rem; font-weight: bold; color: var(--accent-color);">00:00</span>
+                    </div>
+                    <div class="team-container">
+                    <div class="team">
+                        <div class="team-name">己方</div>
+                        <div class="score" id="team-a-score">0</div>
+                        <div class="score-controls">
+                            <button class="btn btn-primary" onclick="updateScore('a', 1)">+1</button>
+                            <button class="btn btn-danger" onclick="updateScore('a', -1)">-1</button>
+                        </div>
+                    </div>
+                    <div class="team">
+                        <div class="team-name">对方</div>
+                        <div class="score" id="team-b-score">0</div>
+                        <div class="score-controls">
+                            <button class="btn btn-primary" onclick="updateScore('b', 1)">+1</button>
+                            <button class="btn btn-danger" onclick="updateScore('b', -1)">-1</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <div class="control-panel">
+                    <button class="btn btn-dark" onclick="resetScore()">重置比分</button>
+                    <button class="btn btn-primary" id="timer-button" onclick="toggleTimer()">开始比赛</button>
+                    <button class="btn btn-primary" onclick="showResultForm()">结束比赛</button>
+                </div>
+            </div>
+
+            <!-- Result Form (Hidden by default) -->
+            <div id="result-form" class="result-card" style="display: none;">
+                <h2 class="result-title">比赛结果</h2>
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="team-a-names">己方选手（格式：老王/老张）</label>
+                    <input type="text" id="team-a-names" placeholder="例如：老王/老张">
+                </div>
+                <div style="display: flex; align-items: flex-end; padding-bottom: 24px;">vs</div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="team-b-names">对方选手（格式：小李/小陈）</label>
+                    <input type="text" id="team-b-names" placeholder="例如：小李/小陈">
+                </div>
+            </div>
+                <button class="btn btn-primary" onclick="generateResult()">生成赛果卡片</button>
+            </div>
+
+            <!-- Result Card (Hidden by default) -->
+            <div id="result-card" class="result-card" style="display: none;">
+                <h2 class="result-title" id="result-title-text"></h2>
+                <div class="result-score" id="result-score-text"></div>
+                <div class="match-date" id="match-date"></div>
+                <button class="btn btn-primary" onclick="shareResult()">分享结果</button>
+            </div>
+        </div>
+
+        <!-- Grouping Screen -->
+        <div id="grouping" class="screen">
+            <div class="grouping-container">
+                <div class="players-input">
+                    <label for="players-list">输入参与人员（每行一个名字）</label>
+                    <textarea id="players-list" placeholder="张三
+李四
+王五
+赵六
+钱七
+孙八"></textarea>
+                </div>
+                <div class="control-panel">
+                    <button class="btn btn-primary" onclick="randomGroups()">随机分组</button>
+                    <button class="btn btn-dark" onclick="clearGroups()">清空结果</button>
+                </div>
+                <div class="group-results" id="group-results">
+                    <!-- Group results will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Expense Tracker Screen -->
+        <div id="expense" class="screen">
+            <div class="expense-tracker">
+                <div class="expense-form">
+                    <div class="form-group">
+                        <label for="expense-type">费用类型</label>
+                        <select id="expense-type">
+                            <option value="场地费">场地费</option>
+                            <option value="球费">球费</option>
+                            <option value="饮用水">饮用水</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="total-amount">总金额 (元)</label>
+                        <input type="number" id="total-amount" min="0" step="0.01" placeholder="输入总金额">
+                    </div>
+                    <div class="form-group">
+                        <label>参与人员</label>
+                        <div class="players-input">
+                            <textarea id="expense-players" placeholder="张三
+李四
+王五
+赵六
+钱七
+孙八"></textarea>
+                        </div>
+                        <div class="participants-list" id="participants-list">
+                            <!-- Participants will be inserted here -->
+                        </div>
+                        <button class="btn btn-primary" style="margin-top: 15px;" onclick="generateParticipants()">生成选择框</button>
+                    </div>
+                    <div class="control-panel">
+                <button class="btn btn-primary" onclick="calculateExpense()">计算分摊</button>
+                <button class="btn btn-danger" onclick="clearExpenseResult()">清空结果</button>
+            </div>
+                </div>
+
+                <div class="expense-result" id="expense-result" style="display: none;">
+                    <h2 class="result-title">费用分摊结果</h2>
+                    <div class="expense-summary" id="expense-summary"></div>
+                    <div class="expense-details" id="expense-details">
+                        <!-- Expense details will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>设计者：亍幵 | 开发者：亍幵 南北</p>
+    </footer>
+
+    <script>
+let timerInterval;
+let seconds = 0;
+let timerRunning = false;
+
+function toggleTimer() {
+    const timerButton = document.getElementById('timer-button');
+    if (timerRunning) {
+        clearInterval(timerInterval);
+        timerButton.textContent = '继续比赛';
+    } else {
+        timerInterval = setInterval(updateTimer, 1000);
+        timerButton.textContent = '暂停比赛';
+    }
+    timerRunning = !timerRunning;
+}
+
+function updateTimer() {
+    seconds++;
+    const minutes = Math.floor(seconds / 60);
+    const displaySeconds = seconds % 60;
+    document.getElementById('match-timer').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
+}
+
+function resetTimer() {
+    clearInterval(timerInterval);
+    seconds = 0;
+    timerRunning = false;
+    document.getElementById('match-timer').textContent = '00:00';
+    document.getElementById('timer-button').textContent = '开始比赛';
+}
+
+        // Global variables
+        let scoreA = 0;
+        let scoreB = 0;
+        let currentScreen = 'scoreboard';
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up navigation tabs
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    navTabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    // Hide all screens
+                    document.querySelectorAll('.screen').forEach(screen => {
+                        screen.classList.remove('active');
+                    });
+                    // Show selected screen
+                    const screenId = this.getAttribute('data-screen');
+                    document.getElementById(screenId).classList.add('active');
+                    currentScreen = screenId;
+                });
+            });
+
+            // Check for offline support
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('sw.js').then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    }, function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+                });
+            }
+        });
+
+        // Scoreboard functions
+        function updateScore(team, amount) {
+            if (team === 'a') {
+                scoreA = Math.max(0, scoreA + amount);
+                document.getElementById('team-a-score').textContent = scoreA;
+            } else {
+                scoreB = Math.max(0, scoreB + amount);
+                document.getElementById('team-b-score').textContent = scoreB;
+            }
+            // Save score to localStorage for offline support
+            localStorage.setItem('scoreA', scoreA);
+            localStorage.setItem('scoreB', scoreB);
+        }
+
+        function resetScore() {
+    scoreA = 0;
+    scoreB = 0;
+    document.getElementById('team-a-score').textContent = scoreA;
+    document.getElementById('team-b-score').textContent = scoreB;
+    document.getElementById('result-form').style.display = 'none';
+    document.getElementById('result-card').style.display = 'none';
+    localStorage.removeItem('scoreA');
+    localStorage.removeItem('scoreB');
+    resetTimer();
+}
+
+        function showResultForm() {
+            document.getElementById('result-form').style.display = 'block';
+            document.getElementById('result-card').style.display = 'none';
+        }
+
+        function generateResult() {
+            const teamANames = document.getElementById('team-a-names').value;
+            const teamBNames = document.getElementById('team-b-names').value;
+            if (!teamANames || !teamBNames) {
+                alert('请输入双方选手昵称');
+                return;
+            }
+            const playerNames = `${teamANames} vs ${teamBNames}`;
+
+            // Update result card
+            document.getElementById('result-title-text').textContent = playerNames;
+            document.getElementById('result-score-text').textContent = `${scoreA} - ${scoreB}`;
+            document.getElementById('match-date').textContent = new Date().toLocaleString();
+
+            // Show result card and hide form
+            document.getElementById('result-form').style.display = 'none';
+            document.getElementById('result-card').style.display = 'block';
+
+            // Save match result to localStorage
+            const matchResult = {
+                players: playerNames,
+                scoreA: scoreA,
+                scoreB: scoreB,
+                date: new Date().toISOString()
+            };
+            const matchHistory = JSON.parse(localStorage.getItem('matchHistory') || '[]');
+            matchHistory.push(matchResult);
+            localStorage.setItem('matchHistory', JSON.stringify(matchHistory));
+        }
+
+        function shareResult() {
+            // In a real app, this would use the Web Share API if available
+            // For this demo, we'll just copy to clipboard
+            const resultText = `${document.getElementById('result-title-text').textContent}\n比分: ${document.getElementById('result-score-text').textContent}\n日期: ${document.getElementById('match-date').textContent}`;
+
+            navigator.clipboard.writeText(resultText).then(function() {
+                alert('赛果已复制到剪贴板，可以粘贴分享了！');
+            }, function(err) {
+                alert('无法复制文本: ', err);
+            });
+        }
+
+        // Grouping functions
+        function randomGroups() {
+            const playersText = document.getElementById('players-list').value;
+            if (!playersText) {
+                alert('请输入参与人员');
+                return;
+            }
+
+            // Split players into array and filter out empty lines
+            let players = playersText.split('\n').filter(p => p.trim() !== '');
+
+            // Shuffle players array
+            for (let i = players.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [players[i], players[j]] = [players[j], players[i]];
+            }
+
+            // Create groups (pairs for doubles)
+            const groups = [];
+            for (let i = 0; i < players.length; i += 2) {
+                if (i + 1 < players.length) {
+                    groups.push([players[i], players[i + 1]]);
+                } else {
+                    // If odd number of players, add last one to the last group
+                    if (groups.length > 0) {
+                        groups[groups.length - 1].push(players[i]);
+                    } else {
+                        groups.push([players[i]]);
+                    }
+                }
+            }
+
+            // Display groups with flip animation
+            const resultsContainer = document.getElementById('group-results');
+            resultsContainer.innerHTML = '';
+
+            groups.forEach((group, index) => {
+                const groupCard = document.createElement('div');
+                groupCard.className = 'group-card';
+                groupCard.innerHTML = `
+                    <div class="group-card-front">
+                        <div class="group-number">${index + 1}</div>
+                        <div>组</div>
+                    </div>
+                    <div class="group-card-back">
+                        ${group.map(player => `<div>${player}</div>`).join('')}
+                    </div>
+                `;
+                resultsContainer.appendChild(groupCard);
+
+                // Add flip animation after a short delay
+                setTimeout(() => {
+                    groupCard.classList.add('flipped');
+                }, 100 * index);
+            });
+
+            // Save groups to localStorage
+            localStorage.setItem('lastGroups', JSON.stringify(groups));
+        }
+
+        function clearGroups() {
+            document.getElementById('group-results').innerHTML = '';
+            document.getElementById('players-list').value = '';
+        }
+
+        // Expense tracker functions
+        function generateParticipants() {
+            const playersText = document.getElementById('expense-players').value;
+            if (!playersText) {
+                alert('请输入参与人员');
+                return;
+            }
+
+            // Split players into array and filter out empty lines
+            const players = playersText.split('\n').filter(p => p.trim() !== '');
+
+            // Generate checkboxes for participants
+            const participantsContainer = document.getElementById('participants-list');
+            participantsContainer.innerHTML = '';
+
+            players.forEach((player, index) => {
+                const checkboxId = `participant-${index}`;
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = checkboxId;
+                checkbox.className = 'participant-checkbox';
+                checkbox.value = player;
+                checkbox.checked = true;
+
+                const label = document.createElement('label');
+                label.htmlFor = checkboxId;
+                label.className = 'participant-label';
+                label.textContent = player;
+
+                participantsContainer.appendChild(checkbox);
+                participantsContainer.appendChild(label);
+            });
+        }
+
+        function clearExpenseResult() {
+            document.getElementById('expense-result').style.display = 'none';
+            document.getElementById('total-amount').value = '';
+        }
+
+        function calculateExpense() {
+            const expenseType = document.getElementById('expense-type').value;
+            const totalAmount = parseFloat(document.getElementById('total-amount').value);
+            const checkboxes = document.querySelectorAll('.participant-checkbox:checked');
+
+            if (isNaN(totalAmount) || totalAmount <= 0) {
+                alert('请输入有效的总金额');
+                return;
+            }
+
+            if (checkboxes.length === 0) {
+                alert('请选择参与人员');
+                return;
+            }
+
+            // Calculate per person cost
+            const perPerson = totalAmount / checkboxes.length;
+            const participants = Array.from(checkboxes).map(cb => cb.value);
+
+            // Display results
+            const resultContainer = document.getElementById('expense-result');
+            const summaryContainer = document.getElementById('expense-summary');
+            const detailsContainer = document.getElementById('expense-details');
+
+            summaryContainer.textContent = `${expenseType}：${totalAmount.toFixed(2)}元，共${checkboxes.length}人参与，人均：${perPerson.toFixed(2)}元`;
+            detailsContainer.innerHTML = '';
+
+            participants.forEach(participant => {
+                const detailItem = document.createElement('div');
+                detailItem.className = 'detail-item';
+                detailItem.innerHTML = `
+                    <span>${participant}</span>
+                    <span>${perPerson.toFixed(2)}元</span>
+                `;
+                detailsContainer.appendChild(detailItem);
+            });
+
+            // Show result
+            resultContainer.style.display = 'block';
+
+            // Save expense to localStorage
+            const expenseRecord = {
+                type: expenseType,
+                total: totalAmount,
+                perPerson: perPerson,
+                participants: participants,
+                date: new Date().toISOString()
+            };
+            const expenseHistory = JSON.parse(localStorage.getItem('expenseHistory') || '[]');
+            expenseHistory.push(expenseRecord);
+            localStorage.setItem('expenseHistory', JSON.stringify(expenseHistory));
+        }
+    </script>
+</body>
+</html>
