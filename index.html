@@ -67,9 +67,15 @@
         }
         .score-display {
             display: flex;
-            justify-content: space-around;
+            flex-direction: column;
             align-items: center;
             margin-bottom: 40px;
+        }
+        .team-container {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            width: 100%;
         }
         .team {
             text-align: center;
@@ -350,6 +356,11 @@
         <div id="scoreboard" class="screen active">
             <div class="scoreboard">
                 <div class="score-display">
+                    <div style="text-align: center; width: 100%; margin-bottom: 20px;">
+                        <span style="font-size: 1.5rem; font-weight: bold;">比赛时长: </span>
+                        <span id="match-timer" style="font-size: 1.5rem; font-weight: bold; color: var(--accent-color);">00:00</span>
+                    </div>
+                    <div class="team-container">
                     <div class="team">
                         <div class="team-name">己方</div>
                         <div class="score" id="team-a-score">0</div>
@@ -366,9 +377,11 @@
                             <button class="btn btn-danger" onclick="updateScore('b', -1)">-1</button>
                         </div>
                     </div>
+                    </div>
                 </div>
                 <div class="control-panel">
                     <button class="btn btn-dark" onclick="resetScore()">重置比分</button>
+                    <button class="btn btn-primary" id="timer-button" onclick="toggleTimer()">开始比赛</button>
                     <button class="btn btn-primary" onclick="showResultForm()">结束比赛</button>
                 </div>
             </div>
@@ -475,6 +488,38 @@
     </footer>
 
     <script>
+let timerInterval;
+let seconds = 0;
+let timerRunning = false;
+
+function toggleTimer() {
+    const timerButton = document.getElementById('timer-button');
+    if (timerRunning) {
+        clearInterval(timerInterval);
+        timerButton.textContent = '继续比赛';
+    } else {
+        timerInterval = setInterval(updateTimer, 1000);
+        timerButton.textContent = '暂停比赛';
+    }
+    timerRunning = !timerRunning;
+}
+
+function updateTimer() {
+    seconds++;
+    const minutes = Math.floor(seconds / 60);
+    const displaySeconds = seconds % 60;
+    document.getElementById('match-timer').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
+}
+
+function resetTimer() {
+    clearInterval(timerInterval);
+    seconds = 0;
+    timerRunning = false;
+    document.getElementById('match-timer').textContent = '00:00';
+    document.getElementById('timer-button').textContent = '开始比赛';
+}
+
         // Global variables
         let scoreA = 0;
         let scoreB = 0;
@@ -528,15 +573,16 @@
         }
 
         function resetScore() {
-            scoreA = 0;
-            scoreB = 0;
-            document.getElementById('team-a-score').textContent = scoreA;
-            document.getElementById('team-b-score').textContent = scoreB;
-            document.getElementById('result-form').style.display = 'none';
-            document.getElementById('result-card').style.display = 'none';
-            localStorage.removeItem('scoreA');
-            localStorage.removeItem('scoreB');
-        }
+    scoreA = 0;
+    scoreB = 0;
+    document.getElementById('team-a-score').textContent = scoreA;
+    document.getElementById('team-b-score').textContent = scoreB;
+    document.getElementById('result-form').style.display = 'none';
+    document.getElementById('result-card').style.display = 'none';
+    localStorage.removeItem('scoreA');
+    localStorage.removeItem('scoreB');
+    resetTimer();
+}
 
         function showResultForm() {
             document.getElementById('result-form').style.display = 'block';
