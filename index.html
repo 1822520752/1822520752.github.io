@@ -701,7 +701,7 @@ function resetTimer() {
             ctx.fillText(`净胜分: ${netScore}分`, canvas.width / 2, 440);
             ctx.fillText(`胜者: ${winner}`, canvas.width / 2, 480);
 
-            // 添加时间显示（移到胜者信息下方）
+            // 将时间移到胜者信息下方（Y坐标调整为540）
             const now = new Date();
             const timeStr = now.toLocaleString('zh-CN', {
                 year: 'numeric',
@@ -711,9 +711,9 @@ function resetTimer() {
                 minute: '2-digit',
                 second: '2-digit'
             }).replace(/\//g, '-');
-            ctx.fillText(`时间: ${timeStr}`, canvas.width / 2, 1040);
+            ctx.fillText(`时间: ${timeStr}`, canvas.width / 2, 540); // 原Y坐标: 1040
             
-            // 添加花式水印
+            // 将水印移到时间下方（Y坐标调整为600）
             ctx.save();
             ctx.font = 'italic bold 36px Arial, SimHei';
             // 创建渐变效果
@@ -727,8 +727,24 @@ function resetTimer() {
             ctx.shadowOffsetX = 2;
             ctx.shadowOffsetY = 2;
             // 绘制水印文字
-            ctx.fillText('羽毛球极速计分板 | 亍幵', canvas.width / 2, 1120);
+            ctx.fillText('羽毛球极速计分板 | 亍幵', canvas.width / 2, 600); // 原Y坐标: 1120
             ctx.restore();
+            
+            // ==== 新增空白裁剪逻辑 ====
+            // 计算实际内容高度（水印下方100px作为底部边界）
+            const contentHeight = 700; // 基于最后元素Y坐标600 + 100px边距
+            // 创建临时canvas用于裁剪
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = contentHeight;
+            // 复制有效内容区域
+            tempCtx.drawImage(canvas, 0, 0, canvas.width, contentHeight, 0, 0, canvas.width, contentHeight);
+            // 替换原canvas内容
+            canvas.width = tempCanvas.width;
+            canvas.height = tempCanvas.height;
+            ctx.drawImage(tempCanvas, 0, 0);
+            // ===========================
             
             // 绘制分享引导
             ctx.font = 'italic 22px Arial';
@@ -737,8 +753,32 @@ function resetTimer() {
             // 显示海报和遮罩
             overlay.style.display = 'block';
             canvas.style.display = 'block';
+            // ==== 新增居中样式 ====
+            canvas.style.margin = '0 auto';
+            canvas.style.position = 'absolute';
+            canvas.style.top = '50%';
+            canvas.style.left = '50%';
+            canvas.style.transform = 'translate(-50%, -50%)';
+            canvas.style.transformOrigin = 'center center';
+            // ======================
             document.getElementById('closePosterBtn').style.display = 'block';
             document.getElementById('sharePosterBtn').style.display = 'block';
+            // 添加微信环境检测提示
+            if (navigator.userAgent.includes('MicroMessenger')) {
+                const wechatTip = document.createElement('div');
+                wechatTip.textContent = '微信用户请点击"分享海报"后长按保存';
+                wechatTip.style.position = 'fixed';
+                wechatTip.style.bottom = '180px';
+                wechatTip.style.left = '50%';
+                wechatTip.style.transform = 'translateX(-50%)';
+                wechatTip.style.color = '#3498db';
+                wechatTip.style.fontSize = '14px';
+                wechatTip.style.padding = '5px 10px';
+                wechatTip.style.backgroundColor = 'rgba(255,255,255,0.8)';
+                wechatTip.style.borderRadius = '4px';
+                wechatTip.id = 'wechatEnvironmentTip';
+                document.body.appendChild(wechatTip);
+            }
         }
 
         // 关闭海报
@@ -751,21 +791,67 @@ function resetTimer() {
 
         // 保存海报图片
         function savePoster() {
-            const canvas = document.getElementById('posterCanvas');
-            // 使用toBlob方法保存高清图片，质量参数设为1.0
-            canvas.toBlob(function(blob) {
-                const link = document.createElement('a');
-                link.download = '羽毛球比赛结果海报.png';
-                link.href = URL.createObjectURL(blob);
-                link.onclick = function() {
-                    setTimeout(function() {
-                        URL.revokeObjectURL(link.href);
-                    }, 150);
-                };
-                link.click();
-                alert('高清海报已保存到相册，快去分享吧！');
-            }, 'image/png', 1.0); // 1.0表示最高质量
-        }
+    const canvas = document.getElementById('posterCanvas');
+    const isWechat = navigator.userAgent.includes('MicroMessenger');
+    const imageURL = canvas.toDataURL('image/png');
+    
+    // 浏览器环境：直接下载
+    if (!isWechat) {
+        const link = document.createElement('a');
+        link.download = '羽毛球比赛结果海报.png';
+        link.href = imageURL;
+        link.click();
+        alert('海报已下载，请到下载文件夹查看');
+        return;
+    }
+    
+    // 微信环境：长按保存模式
+    const posterImg = document.createElement('img');
+    posterImg.src = imageURL;
+    posterImg.style.maxWidth = '90%';
+    posterImg.style.maxHeight = '80vh';
+    posterImg.style.border = '8px solid white';
+    posterImg.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+    // ==== 确保微信预览也居中 ====
+    posterImg.style.margin = '0 auto';
+    // ===========================
+    
+    const wechatContainer = document.createElement('div');
+    wechatContainer.style.position = 'fixed';
+    wechatContainer.style.top = '0';
+    wechatContainer.style.left = '0';
+    wechatContainer.style.width = '100%';
+    wechatContainer.style.height = '100%';
+    wechatContainer.style.backgroundColor = 'rgba(0,0,0,0.85)';
+    wechatContainer.style.display = 'flex';
+    wechatContainer.style.flexDirection = 'column';
+    wechatContainer.style.justifyContent = 'center';
+    wechatContainer.style.alignItems = 'center';
+    wechatContainer.style.zIndex = '9999';
+    wechatContainer.id = 'wechatSaveContainer';
+    
+    const tipText = document.createElement('div');
+    tipText.textContent = '长按图片选择"保存图片"';
+    tipText.style.color = 'white';
+    tipText.style.fontSize = '18px';
+    tipText.style.marginTop = '20px';
+    
+    const closeBtn = document.createElement('div');
+    closeBtn.textContent = '关闭';
+    closeBtn.style.color = 'white';
+    closeBtn.style.fontSize = '16px';
+    closeBtn.style.marginTop = '15px';
+    closeBtn.style.padding = '8px 20px';
+    closeBtn.style.border = '1px solid white';
+    closeBtn.style.borderRadius = '20px';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.onclick = () => document.body.removeChild(wechatContainer);
+    
+    wechatContainer.appendChild(posterImg);
+    wechatContainer.appendChild(tipText);
+    wechatContainer.appendChild(closeBtn);
+    document.body.appendChild(wechatContainer);
+}
 
         // Grouping functions
         function randomGroups() {
