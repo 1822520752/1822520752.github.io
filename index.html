@@ -362,6 +362,7 @@
     <div class="container">
         <header>
             <h1>羽毛球极速记分板</h1>
+            <p style="font-family: 'Brush Script MT', cursive; font-size: 1.5em; background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1); -webkit-background-clip: text; color: transparent; text-align: center;">设计者：亍幵（张鑫）南北<br>开发者：亍幵（张鑫）<br>QQ: 1822520752 (建议联系)</p>
         </header>
 
         <ul class="nav-tabs">
@@ -503,8 +504,7 @@
     </div>
 
       <footer>
-        <p style="font-family: 'Brush Script MT', cursive; font-size: 1.5em; background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1); -webkit-background-clip: text; color: transparent; text-align: center;">设计者：亍幵（张鑫）南北<br>开发者：亍幵（张鑫）<br>QQ: 1822520752 (建议联系)</p>
-    </footer>
+        </footer>
 
     <script>
 let timerInterval;
@@ -711,7 +711,24 @@ function resetTimer() {
                 minute: '2-digit',
                 second: '2-digit'
             }).replace(/\//g, '-');
-            ctx.fillText(`时间: ${timeStr}`, canvas.width / 2, 520);
+            ctx.fillText(`时间: ${timeStr}`, canvas.width / 2, 1040);
+            
+            // 添加花式水印
+            ctx.save();
+            ctx.font = 'italic bold 36px Arial, SimHei';
+            // 创建渐变效果
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+            gradient.addColorStop(0, 'rgba(100, 149, 237, 0.7)');
+            gradient.addColorStop(1, 'rgba(255, 105, 180, 0.7)');
+            ctx.fillStyle = gradient;
+            ctx.textAlign = 'center';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 5;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+            // 绘制水印文字
+            ctx.fillText('羽毛球极速计分板 | 亍幵', canvas.width / 2, 1120);
+            ctx.restore();
             
             // 绘制分享引导
             ctx.font = 'italic 22px Arial';
@@ -735,11 +752,19 @@ function resetTimer() {
         // 保存海报图片
         function savePoster() {
             const canvas = document.getElementById('posterCanvas');
-            const link = document.createElement('a');
-            link.download = '羽毛球比赛结果海报.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            alert('海报已保存到本地，快去分享吧！');
+            // 使用toBlob方法保存高清图片，质量参数设为1.0
+            canvas.toBlob(function(blob) {
+                const link = document.createElement('a');
+                link.download = '羽毛球比赛结果海报.png';
+                link.href = URL.createObjectURL(blob);
+                link.onclick = function() {
+                    setTimeout(function() {
+                        URL.revokeObjectURL(link.href);
+                    }, 150);
+                };
+                link.click();
+                alert('高清海报已保存到相册，快去分享吧！');
+            }, 'image/png', 1.0); // 1.0表示最高质量
         }
 
         // Grouping functions
@@ -900,11 +925,11 @@ function resetTimer() {
         }
     </script>
         <!-- 海报Canvas (隐藏) -->
-        <canvas id="posterCanvas" width="600" height="800" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 8px solid white; box-shadow: 0 0 0 1px #e0e0e0, 0 4px 12px rgba(0,0,0,0.15); outline: 1px solid #f0f0f0; outline-offset: -5px; z-index: 1000;"></canvas>
+        <canvas id="posterCanvas" width="1200" height="1600" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5); width: 600px; height: 800px; border: 8px solid white; box-shadow: 0 0 0 1px #e0e0e0, 0 4px 12px rgba(0,0,0,0.15); outline: 1px solid #f0f0f0; outline-offset: -5px; z-index: 1000;"></canvas>
         <div id="posterOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999;"></div>
         <!-- 添加右上角关闭按钮 -->
-        <div id="closePosterBtn" onclick="closePoster()" style="display: none; position: fixed; top: 20px; right: 20px; background: #e74c3c; color: white; padding: 10px 20px; border-radius: 5px; font-size: 18px; cursor: pointer; z-index: 1001; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">关闭海报</div>
         <div id="sharePosterBtn" onclick="savePoster()" style="display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #3498db; color: white; padding: 12px 24px; border-radius: 5px; font-size: 20px; cursor: pointer; z-index: 1001; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">分享海报</div>
+        <div id="closePosterBtn" onclick="closePoster()" style="display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #e74c3c; color: white; padding: 10px 20px; border-radius: 5px; font-size: 18px; cursor: pointer; z-index: 1001; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">关闭海报</div>
 
 </body>
 </html>
