@@ -1146,11 +1146,12 @@ function changeMainBackground() {
     const matchTime = `${minutes}:${(finalMatchTime % 60).toString().padStart(2, '0')}`;
 
     // 设置canvas尺寸（只设置一次）
-    const contentHeight = 700;
-    // 动态计算Canvas宽度，最大600px，最小为屏幕宽度的90%
-    const screenWidth = window.innerWidth;
-    const baseWidth = Math.min(600, screenWidth * 0.9);
-    const scaleFactor = baseWidth / 600; // 计算缩放因子
+    const screenHeight = window.innerHeight;
+        const contentHeight = Math.min(700, screenHeight * 0.8); // 最大700px，最小为屏幕高度的80%
+        // 动态计算Canvas宽度，最大600px，最小为屏幕宽度的90%
+        const screenWidth = window.innerWidth;
+        const baseWidth = Math.min(600, screenWidth * 0.9);
+        const scaleFactor = baseWidth / 600; // 计算缩放因子
         canvas.width = baseWidth;
         canvas.height = contentHeight * scaleFactor;
 
@@ -1211,14 +1212,14 @@ function changeMainBackground() {
             titleGradient.addColorStop(0, '#3498db');
             titleGradient.addColorStop(1, '#9b59b6');
             
-            ctx.font = 'bold 46px "Arial Black", "Microsoft YaHei", sans-serif';
+            ctx.font = `bold ${getScaledFontSize(46)}px "Arial Black", "Microsoft YaHei", sans-serif`;
             ctx.fillStyle = titleGradient;
             ctx.textAlign = 'center';
             ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
-            ctx.shadowBlur = 8;
+            ctx.shadowBlur = 8 * scaleFactor;
             ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 4;
-            ctx.fillText('羽毛球比赛结果', canvas.width / 2, 80);
+            ctx.shadowOffsetY = 4 * scaleFactor;
+            ctx.fillText('羽毛球比赛结果', canvas.width / 2, 80 * scaleFactor);
             ctx.shadowBlur = 0; // 重置阴影
 
             // 绘制比分前添加信息卡片背景
@@ -1255,7 +1256,7 @@ function changeMainBackground() {
         ctx.fillText(teamAText, canvas.width / 2, 150 * orientationAdjust.scale + orientationAdjust.yOffset);
             // 败方文本（添加首尾空格保持长度一致）
             ctx.fillStyle = scoreB > scoreA ? '#e74c3c' : '#3498db';
-            ctx.strokeText(` ${teamBNames} ${scoreB > scoreA ? winnerText : loserText} `, canvas.width / 2, 220);
+            ctx.strokeText(` ${teamBNames} ${scoreB > scoreA ? winnerText : loserText} `, canvas.width / 2, 220 * scaleFactor);
             ctx.fillText(` ${teamBNames} ${scoreB > scoreA ? winnerText : loserText} `, canvas.width / 2, 220 * orientationAdjust.scale + orientationAdjust.yOffset);
             
             // 重置阴影
@@ -1276,15 +1277,15 @@ function changeMainBackground() {
             ctx.shadowBlur = 0;
 
             // 绘制关键数据
-            ctx.font = 'bold 24px "Arial Black", "Microsoft YaHei", sans-serif';
+            ctx.font = `bold ${getScaledFontSize(24)}px "Arial Black", "Microsoft YaHei", sans-serif`;
             ctx.fillStyle = '#333';
             ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-            ctx.lineWidth = 1.5;
-            ctx.strokeText(`比赛时长: ${matchTime}`, canvas.width / 2, 400);
+            ctx.lineWidth = 1.5 * scaleFactor;
+            ctx.strokeText(`比赛时长: ${matchTime}`, canvas.width / 2, 400 * scaleFactor);
             ctx.fillText(`比赛时长: ${matchTime}`, canvas.width / 2, 400 * orientationAdjust.scale + orientationAdjust.yOffset);
-            ctx.strokeText(`净胜分: ${netScore}分`, canvas.width / 2, 440);
+            ctx.strokeText(`净胜分: ${netScore}分`, canvas.width / 2, 440 * scaleFactor);
             ctx.fillText(`净胜分: ${netScore}分`, canvas.width / 2, 440 * orientationAdjust.scale + orientationAdjust.yOffset);
-            ctx.strokeText(`胜者: ${winner}`, canvas.width / 2, 480);
+            ctx.strokeText(`胜者: ${winner}`, canvas.width / 2, 480 * scaleFactor);
             ctx.fillText(`胜者: ${winner}`, canvas.width / 2, 480 * orientationAdjust.scale + orientationAdjust.yOffset);
 
             // 将时间移到胜者信息下方（Y坐标调整为540）
