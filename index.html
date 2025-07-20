@@ -256,6 +256,15 @@
             transform: translateY(-3px);
             box-shadow: 0 12px 28px rgba(0,0,0,0.15), 0 6px 12px rgba(0,0,0,0.08);
         }
+        /* 添加表单响应式样式 */
+        .result-card input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .result-card .form-group {
+            margin-bottom: 15px;
+        }
         .result-title {
             font-size: 1.8rem;
             margin-bottom: 20px;
@@ -441,6 +450,9 @@
                 flex-direction: column;
                 gap: 30px;
             }
+            .team-container {
+                gap: 30px; /* 减小团队间距 */
+            }
             .score {
                 font-size: 4rem;
                 width: 120px;
@@ -448,10 +460,15 @@
             }
             .control-panel {
                 flex-wrap: wrap;
+                gap: 10px; /* 减小按钮间距 */
             }
             .btn {
-                padding: 12px 24px;
-                font-size: 1rem;
+                padding: 10px 20px; /* 进一步减小按钮内边距 */
+                font-size: 0.9rem;
+                flex: 1 0 40%; /* 按钮自适应宽度 */
+            }
+            h1 {
+                font-size: 2.5rem; /* 调整标题大小 */
             }
         }
         /* Landscape mode for score projection */
@@ -474,6 +491,42 @@
             h1 {
                 font-size: 1.8rem;
                 margin-bottom: 5px;
+            }
+        }
+
+        /* 新增小屏幕专用规则 */
+        @media (max-width: 480px) {
+            .team-container {
+                gap: 15px;
+            }
+            .team {
+                padding: 10px 5px;
+                margin: 0;
+            }
+            .team-name {
+                font-size: 1.5rem;
+            }
+            .score {
+                font-size: 3.5rem;
+                width: 100px;
+                height: 100px;
+            }
+            .control-panel {
+                gap: 8px;
+            }
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+                flex: 1 0 45%;
+            }
+            .container {
+                padding: 10px;
+            }
+            .scoreboard {
+                padding: 20px 15px;
+            }
+            .result-card {
+                padding: 15px;
             }
         }
     </style>
