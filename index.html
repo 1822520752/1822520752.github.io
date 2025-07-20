@@ -543,6 +543,161 @@ function resetTimer() {
         let scoreA = 0;
         let scoreB = 0;
         let currentScreen = 'scoreboard';
+        // 添加比赛结束时的时间和时长变量
+        let finalMatchTime = 0;
+        let finalMatchDate = null;
+        // 全局变量 - 添加背景相关变量
+        let currentBackgroundIndex = 0;
+        const backgroundStyles = [
+            // 1. 蓝色渐变背景
+            (ctx, width, height) => {
+                const grad = ctx.createLinearGradient(0, 0, width, height);
+                grad.addColorStop(0, '#4facfe');
+                grad.addColorStop(1, '#00f2fe');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+            },
+            // 2. 紫色渐变背景
+            (ctx, width, height) => {
+                const grad = ctx.createLinearGradient(0, 0, width, 0);
+                grad.addColorStop(0, '#8A2BE2');
+                grad.addColorStop(1, '#9370DB');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+            },
+            // 3. 粉色渐变背景
+            (ctx, width, height) => {
+                const grad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width/2);
+                grad.addColorStop(0, '#FF69B4');
+                grad.addColorStop(1, '#FFC0CB');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+            },
+            // 4. 网格纹理背景
+            (ctx, width, height) => {
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(0, 0, width, height);
+                ctx.strokeStyle = 'rgba(0,0,0,0.05)';
+                ctx.lineWidth = 1;
+                const gridSize = 30;
+                for(let i=0; i<=width; i+=gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, height);
+                    ctx.stroke();
+                }
+                for(let i=0; i<=height; i+=gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, i);
+                    ctx.lineTo(width, i);
+                    ctx.stroke();
+                }
+            },
+            // 5. 金色渐变背景
+            (ctx, width, height) => {
+                const grad = ctx.createLinearGradient(0, 0, 0, height);
+                grad.addColorStop(0, '#FFD700');
+                grad.addColorStop(1, '#FFA500');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+            },
+            // 6. 绿色渐变背景
+            (ctx, width, height) => {
+                const grad = ctx.createLinearGradient(0, height, width, 0);
+                grad.addColorStop(0, '#3CB371');
+                grad.addColorStop(1, '#98FB98');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+            },
+            // 7. 红色渐变背景
+            (ctx, width, height) => {
+                const grad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width);
+                grad.addColorStop(0, '#FF4500');
+                grad.addColorStop(1, '#DC143C');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+            },
+            // 8. 波浪纹理背景 - 优化版
+            (ctx, width, height) => {
+                ctx.fillStyle = '#87CEEB';
+                ctx.fillRect(0, 0, width, height);
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                
+                // 优化：减少波浪数量并使用贝塞尔曲线替代逐点绘制
+                const waveCount = 3; // 减少波浪数量
+                const segmentWidth = 50; // 增加线段宽度，减少绘制点数
+                
+                for(let i=0; i<waveCount; i++){
+                    ctx.beginPath();
+                    ctx.moveTo(0, height/2 + Math.sin(i*0.5)*30);
+                    
+                    // 优化：使用贝塞尔曲线绘制波浪，减少计算点
+                    for(let x=0; x<width; x+=segmentWidth){
+                        const cp1x = x + segmentWidth/3;
+                        const cp1y = height/2 + Math.sin((x + segmentWidth/3)/50 + i*0.5)*30;
+                        const cp2x = x + segmentWidth*2/3;
+                        const cp2y = height/2 + Math.sin((x + segmentWidth*2/3)/50 + i*0.5)*30;
+                        const endX = x + segmentWidth;
+                        const endY = height/2 + Math.sin(endX/50 + i*0.5)*30;
+                        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
+                    }
+                    
+                    ctx.lineTo(width, height);
+                    ctx.lineTo(0, height);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            },
+            // 9. 深色渐变背景
+            (ctx, width, height) => {
+                const grad = ctx.createLinearGradient(0, 0, width, height);
+                grad.addColorStop(0, '#1a2a6c');
+                grad.addColorStop(1, '#b21f1f');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+            },
+            // 10. 紫色粉色渐变背景
+            (ctx, width, height) => {
+                const grad = ctx.createLinearGradient(0, 0, width, height);
+                grad.addColorStop(0, '#9D50BB');
+                grad.addColorStop(1, '#6E48AA');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+            }
+        ]
+
+        // 添加背景缓存机制
+        const backgroundCache = [];
+        let isBackgroundCached = false;
+
+        // 预缓存所有背景
+        function cacheBackgrounds() {
+            if (isBackgroundCached) return;
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 600; // 匹配海报宽度
+            canvas.height = 700; // 匹配海报高度
+            
+            // 缓存所有背景
+            backgroundStyles.forEach((style, index) => {
+                const offscreenCanvas = document.createElement('canvas');
+                offscreenCanvas.width = canvas.width;
+                offscreenCanvas.height = canvas.height;
+                const offscreenCtx = offscreenCanvas.getContext('2d');
+                
+                // 绘制背景到离屏canvas
+                style(offscreenCtx, canvas.width, canvas.height);
+                
+                // 存储缓存
+                backgroundCache[index] = offscreenCanvas;
+            });
+            
+            isBackgroundCached = true;
+        }
+
+        // 页面加载时预缓存背景
+        window.addEventListener('load', cacheBackgrounds);
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
@@ -565,16 +720,20 @@ function resetTimer() {
                 });
             });
 
-            // Check for offline support
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                    navigator.serviceWorker.register('sw.js').then(function(registration) {
-                        console.log('ServiceWorker registration successful');
-                    }, function(err) {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-                });
-            }
+            // 初始化时绑定事件监听（只绑定一次）
+    const canvas = document.getElementById('posterCanvas');
+    canvas.addEventListener('click', handleButtonClick);
+
+    // Check for offline support
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('sw.js').then(function(registration) {
+                console.log('ServiceWorker registration successful');
+            }, function(err) {
+                console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+    }
         });
 
         // Scoreboard functions
@@ -621,10 +780,14 @@ function resetTimer() {
             }
             const playerNames = `${teamANames} vs ${teamBNames}`;
 
+            // 保存比赛结束时的时间和时长
+            finalMatchTime = seconds; // 保存比赛时长（秒数）
+            finalMatchDate = new Date(); // 保存比赛结束时间
+
             // Update result card
             document.getElementById('result-title-text').textContent = playerNames;
             document.getElementById('result-score-text').textContent = `${scoreA} - ${scoreB}`;
-            document.getElementById('match-date').textContent = new Date().toLocaleString();
+            document.getElementById('match-date').textContent = finalMatchDate.toLocaleString();
 
             // Show result card and hide form
             document.getElementById('result-form').style.display = 'none';
@@ -658,23 +821,43 @@ function resetTimer() {
         }
 
         function generatePoster() {
-            const canvas = document.getElementById('posterCanvas');
-            const overlay = document.getElementById('posterOverlay');
-            const ctx = canvas.getContext('2d');
-            const teamANames = document.getElementById('team-a-names').value;
-            const teamBNames = document.getElementById('team-b-names').value;
-            const scoreA = parseInt(document.getElementById('team-a-score').textContent);
-            const scoreB = parseInt(document.getElementById('team-b-score').textContent);
-            const winner = scoreA > scoreB ? '己方' : '对方';
-            const winnerText = '胜方';
-            const loserText = '败方';
-            const netScore = Math.abs(scoreA - scoreB);
-            const minutes = Math.floor(seconds / 60);
-            const matchTime = `${minutes}:${(seconds % 60).toString().padStart(2, '0')}`;
+    const canvas = document.getElementById('posterCanvas');
+    const overlay = document.getElementById('posterOverlay');
+    const ctx = canvas.getContext('2d');
+    const teamANames = document.getElementById('team-a-names').value;
+    const teamBNames = document.getElementById('team-b-names').value;
+    const scoreA = parseInt(document.getElementById('team-a-score').textContent);
+    const scoreB = parseInt(document.getElementById('team-b-score').textContent);
+    const winner = scoreA > scoreB ? '己方' : '对方';
+    const winnerText = '胜方';
+    const loserText = '败方';
+    const netScore = Math.abs(scoreA - scoreB);
 
-            // 清空画布
-            ctx.fillStyle = '#f8f9fa';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (!teamANames || !teamBNames) {
+        alert('请输入双方选手昵称');
+        return;
+    }
+    // 验证比赛结束数据
+    if (typeof finalMatchTime === 'undefined' || !finalMatchDate) {
+        alert('请先结束比赛再生成海报');
+        return;
+    }
+
+    // 使用比赛结束时保存的时长
+    const minutes = Math.floor(finalMatchTime / 60);
+    const matchTime = `${minutes}:${(finalMatchTime % 60).toString().padStart(2, '0')}`;
+
+    // 设置canvas尺寸（只设置一次）
+    const contentHeight = 700;
+    canvas.width = 600;
+    canvas.height = contentHeight;
+
+    // 绘制背景（只绘制一次）
+    if (isBackgroundCached && backgroundCache[currentBackgroundIndex]) {
+        ctx.drawImage(backgroundCache[currentBackgroundIndex], 0, 0);
+    } else {
+        backgroundStyles[currentBackgroundIndex](ctx, canvas.width, canvas.height);
+    }
 
             // 绘制标题
             ctx.font = 'bold 36px Arial';
@@ -682,12 +865,14 @@ function resetTimer() {
             ctx.textAlign = 'center';
             ctx.fillText('羽毛球比赛结果', canvas.width / 2, 60);
 
-            // 绘制选手信息
-            ctx.font = '24px Arial';
-            ctx.fillStyle = scoreA > scoreB ? '#e74c3c' : '#3498db';
-            ctx.fillText(`${teamANames} ${scoreA > scoreB ? winnerText : loserText}`, canvas.width / 2, 150);
-            ctx.fillStyle = scoreB > scoreA ? '#e74c3c' : '#3498db';
-            ctx.fillText(`${teamBNames} ${scoreB > scoreA ? winnerText : loserText}`, canvas.width / 2, 220);
+            // 绘制选手信息 - 统一字体大小并添加空格对齐
+        ctx.font = '24px Arial';  // 统一字体大小
+        // 胜方文本（添加首尾空格保持长度一致）
+        ctx.fillStyle = scoreA > scoreB ? '#e74c3c' : '#3498db';
+        ctx.fillText(` ${teamANames} ${scoreA > scoreB ? winnerText : loserText} `, canvas.width / 2, 150);
+        // 败方文本（添加首尾空格保持长度一致）
+        ctx.fillStyle = scoreB > scoreA ? '#e74c3c' : '#3498db';
+        ctx.fillText(` ${teamBNames} ${scoreB > scoreA ? winnerText : loserText} `, canvas.width / 2, 220);
 
             // 绘制比分
             ctx.font = 'bold 60px Arial';
@@ -702,8 +887,8 @@ function resetTimer() {
             ctx.fillText(`胜者: ${winner}`, canvas.width / 2, 480);
 
             // 将时间移到胜者信息下方（Y坐标调整为540）
-            const now = new Date();
-            const timeStr = now.toLocaleString('zh-CN', {
+            // 使用比赛结束时保存的时间
+            const timeStr = finalMatchDate.toLocaleString('zh-CN', {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',
@@ -730,39 +915,73 @@ function resetTimer() {
             ctx.fillText('羽毛球极速计分板 | 亍幵', canvas.width / 2, 600); // 原Y坐标: 1120
             ctx.restore();
             
-            // ==== 新增空白裁剪逻辑 ====
-            // 计算实际内容高度（水印下方100px作为底部边界）
-            const contentHeight = 700; // 基于最后元素Y坐标600 + 100px边距
-            // 创建临时canvas用于裁剪
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = contentHeight;
-            // 复制有效内容区域
-            tempCtx.drawImage(canvas, 0, 0, canvas.width, contentHeight, 0, 0, canvas.width, contentHeight);
-            // 替换原canvas内容
-            canvas.width = tempCanvas.width;
-            canvas.height = tempCanvas.height;
-            ctx.drawImage(tempCanvas, 0, 0);
-            // ===========================
-            
+        
             // 绘制分享引导
-            ctx.font = 'italic 22px Arial';
-            ctx.fillStyle = '#3498db';
+        ctx.font = 'italic 22px Arial';
+        ctx.fillStyle = '#3498db';
 
-            // 显示海报和遮罩
-            overlay.style.display = 'block';
-            canvas.style.display = 'block';
-            // ==== 新增居中样式 ====
-            canvas.style.margin = '0 auto';
-            canvas.style.position = 'absolute';
-            canvas.style.top = '50%';
-            canvas.style.left = '50%';
-            canvas.style.transform = 'translate(-50%, -50%)';
-            canvas.style.transformOrigin = 'center center';
-            // ======================
-            document.getElementById('closePosterBtn').style.display = 'block';
-            document.getElementById('sharePosterBtn').style.display = 'block';
+    // 优化按钮点击区域计算
+    const buttonWidth = 120;
+    const buttonHeight = 40;
+    const buttonY = canvas.height - 60;
+    const buttonPadding = 20;
+    const totalButtonWidth = (buttonWidth * 3) + (buttonPadding * 2);
+    const startX = (canvas.width - totalButtonWidth) / 2;
+
+    // 绘制分享海报按钮
+    ctx.fillStyle = '#3498db';
+    ctx.fillRect(startX, buttonY, buttonWidth, buttonHeight);
+    ctx.fillStyle = 'white';
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('分享海报', startX + buttonWidth/2, buttonY + buttonHeight/2);
+
+    // 绘制关闭海报按钮
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(startX + buttonWidth + buttonPadding, buttonY, buttonWidth, buttonHeight);
+    ctx.fillStyle = 'white';
+    ctx.fillText('关闭海报', startX + buttonWidth + buttonPadding + buttonWidth/2, buttonY + buttonHeight/2);
+
+    // 绘制切换背景按钮
+    ctx.fillStyle = '#2ecc71';
+    ctx.fillRect(startX + buttonWidth*2 + buttonPadding*2, buttonY, buttonWidth, buttonHeight);
+    ctx.fillStyle = 'white';
+    ctx.fillText('切换背景', startX + buttonWidth*2 + buttonPadding*2 + buttonWidth/2, buttonY + buttonHeight/2);
+
+    // 存储按钮位置供事件处理使用
+    canvas.buttonAreas = {
+        share: {x: startX, y: buttonY, width: buttonWidth, height: buttonHeight},
+        close: {x: startX + buttonWidth + buttonPadding, y: buttonY, width: buttonWidth, height: buttonHeight},
+        changeBg: {x: startX + buttonWidth*2 + buttonPadding*2, y: buttonY, width: buttonWidth, height: buttonHeight}
+    };
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+        // 显示海报和遮罩
+        overlay.style.display = 'block';
+        canvas.style.display = 'block';
+        // ==== 新增居中样式 ====
+        canvas.style.margin = '0 auto';
+        canvas.style.position = 'absolute';
+        canvas.style.top = '50%';
+        canvas.style.left = '50%';
+        canvas.style.transform = 'translate(-50%, -50%)';
+        canvas.style.transformOrigin = 'center center';
+        // ======================
+        document.getElementById('closePosterBtn').style.display = 'none';
+        document.getElementById('sharePosterBtn').style.display = 'none';
             // 添加微信环境检测提示
             if (navigator.userAgent.includes('MicroMessenger')) {
                 const wechatTip = document.createElement('div');
@@ -892,6 +1111,31 @@ function resetTimer() {
         return;
     }
 }
+
+        // 事件处理函数移到外部并缓存
+        function handleButtonClick(e) {
+            const canvas = document.getElementById('posterCanvas');
+            if (!canvas.buttonAreas) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+            
+            // 使用预计算的按钮区域
+            const areas = canvas.buttonAreas;
+            if (x >= areas.share.x && x <= areas.share.x + areas.share.width && y >= areas.share.y && y <= areas.share.y + areas.share.height) {
+                savePoster();
+            } else if (x >= areas.close.x && x <= areas.close.x + areas.close.width && y >= areas.close.y && y <= areas.close.y + areas.close.height) {
+                closePoster();
+            } else if (x >= areas.changeBg.x && x <= areas.changeBg.x + areas.changeBg.width && y >= areas.changeBg.y && y <= areas.changeBg.y + areas.changeBg.height) {
+                requestAnimationFrame(() => {
+                    currentBackgroundIndex = (currentBackgroundIndex + 1) % backgroundStyles.length;
+                    generatePoster();
+                });
+            }
+        }
 
         // Grouping functions
         function randomGroups() {
@@ -2865,3 +3109,20 @@ function resetTimer() {
         </div>
         </div>
         </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+       
