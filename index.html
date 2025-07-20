@@ -1145,15 +1145,19 @@ function changeMainBackground() {
     const minutes = Math.floor(finalMatchTime / 60);
     const matchTime = `${minutes}:${(finalMatchTime % 60).toString().padStart(2, '0')}`;
 
-    // 设置canvas尺寸（只设置一次）
-    const screenHeight = window.innerHeight;
-        const contentHeight = Math.min(700, screenHeight * 0.8); // 最大700px，最小为屏幕高度的80%
-        // 动态计算Canvas宽度，最大600px，最小为屏幕宽度的90%
+    // 设置canvas尺寸（响应式版）
         const screenWidth = window.innerWidth;
-        const baseWidth = Math.min(600, screenWidth * 0.9);
+        const baseWidth = Math.min(600, screenWidth * 0.9); // 最大600px，最小为屏幕宽度的90%
         const scaleFactor = baseWidth / 600; // 计算缩放因子
-        canvas.width = baseWidth;
-        canvas.height = contentHeight * scaleFactor;
+        const contentHeight = 700 * scaleFactor; // 按比例计算高度
+        
+        // 添加设备像素比调整，解决模糊问题
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = baseWidth * dpr;
+            canvas.height = contentHeight * dpr;
+            canvas.style.width = `${baseWidth}px`;
+            canvas.style.height = `${contentHeight}px`;
+            ctx.scale(dpr, dpr);
 
         // 添加横屏适配
         function adjustForOrientation() {
@@ -1168,32 +1172,16 @@ function changeMainBackground() {
         const orientationAdjust = adjustForOrientation();
 
         // 绘制背景（只绘制一次）
+        // 绘制背景（增强版）
         if (isBackgroundCached && backgroundCache[currentBackgroundIndex]) {
-            ctx.drawImage(backgroundCache[currentBackgroundIndex], 0, 0);
+            ctx.drawImage(backgroundCache[currentBackgroundIndex], 0, 0, canvas.width/dpr, canvas.height/dpr);
         } else {
-            // 使用主界面相同的渐变背景
-            const bgGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            bgGradient.addColorStop(0, '#f5f7fa');
-            bgGradient.addColorStop(1, '#e4eaf5');
-            ctx.fillStyle = bgGradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // 添加纹理效果，与主界面统一
-            ctx.save();
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
-            for (let i = 0; i < 80; i++) {
-                const x = Math.random() * canvas.width;
-                const y = Math.random() * canvas.height;
-                ctx.beginPath();
-                ctx.arc(x, y, Math.random() * 2.5, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.restore();
+            backgroundStyles[currentBackgroundIndex](ctx, canvas.width/dpr, canvas.height/dpr);
         }
 
-            // 添加半透明覆盖层增强文本可读性
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // 添加半透明覆盖层增强文本可读性
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fillRect(0, 0, canvas.width/dpr, canvas.height/dpr);
 
             // 添加纹理效果
             ctx.save();
@@ -1212,14 +1200,15 @@ function changeMainBackground() {
             titleGradient.addColorStop(0, '#3498db');
             titleGradient.addColorStop(1, '#9b59b6');
             
-            ctx.font = `bold ${getScaledFontSize(46)}px "Arial Black", "Microsoft YaHei", sans-serif`;
+            const titleFontSize = 40 * scaleFactor;
+            ctx.font = `bold ${titleFontSize}px "Arial Black", "Microsoft YaHei", sans-serif`;
             ctx.fillStyle = titleGradient;
             ctx.textAlign = 'center';
             ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
             ctx.shadowBlur = 8 * scaleFactor;
             ctx.shadowOffsetX = 0;
             ctx.shadowOffsetY = 4 * scaleFactor;
-            ctx.fillText('羽毛球比赛结果', canvas.width / 2, 80 * scaleFactor);
+            ctx.fillText('羽毛球比赛结果', canvas.width/(2*dpr), 60 * scaleFactor);
             ctx.shadowBlur = 0; // 重置阴影
 
             // 绘制比分前添加信息卡片背景
@@ -1253,11 +1242,11 @@ function changeMainBackground() {
         ctx.strokeStyle = textColor;
         ctx.lineWidth = 2;
         ctx.strokeText(teamAText, canvas.width / 2, 150 * scaleFactor);
-        ctx.fillText(teamAText, canvas.width / 2, 150 * orientationAdjust.scale + orientationAdjust.yOffset);
+        ctx.fillText(teamAText, canvas.width/(2*dpr), 150 * orientationAdjust.scale + orientationAdjust.yOffset);
             // 败方文本（添加首尾空格保持长度一致）
             ctx.fillStyle = scoreB > scoreA ? '#e74c3c' : '#3498db';
             ctx.strokeText(` ${teamBNames} ${scoreB > scoreA ? winnerText : loserText} `, canvas.width / 2, 220 * scaleFactor);
-            ctx.fillText(` ${teamBNames} ${scoreB > scoreA ? winnerText : loserText} `, canvas.width / 2, 220 * orientationAdjust.scale + orientationAdjust.yOffset);
+            ctx.fillText(` ${teamBNames} ${scoreB > scoreA ? winnerText : loserText} `, canvas.width/(2*dpr), 220 * orientationAdjust.scale + orientationAdjust.yOffset);
             
             // 重置阴影
             ctx.shadowBlur = 0;
@@ -1272,7 +1261,9 @@ function changeMainBackground() {
             ctx.strokeStyle = 'rgba(255,255,255,0.9)';
             ctx.lineWidth = 4 * scaleFactor;
             ctx.strokeText(`${scoreA} - ${scoreB}`, canvas.width / 2, 340 * scaleFactor);
-            ctx.fillText(`${scoreA} - ${scoreB}`, canvas.width / 2, 340 * orientationAdjust.scale + orientationAdjust.yOffset);
+            const scoreFontSize = 72 * scaleFactor;
+            ctx.font = `bold ${scoreFontSize}px "Arial Black", "Microsoft YaHei", sans-serif`;
+            ctx.fillText(`${scoreA} - ${scoreB}`, canvas.width/(2*dpr), 320 * orientationAdjust.scale + orientationAdjust.yOffset);
             // 添加发光效果
             ctx.shadowBlur = 0;
 
@@ -1332,10 +1323,10 @@ function changeMainBackground() {
     // 优化按钮点击区域计算
     const buttonWidth = 120 * scaleFactor;
     const buttonHeight = 40 * scaleFactor;
-    const buttonY = canvas.height - 60 * orientationAdjust.scale + orientationAdjust.yOffset;
+    const buttonY = canvas.height/dpr - buttonHeight - 20 * scaleFactor;
     const buttonPadding = 20 * scaleFactor;
     const totalButtonWidth = (buttonWidth * 3) + (buttonPadding * 2);
-    const startX = (canvas.width - totalButtonWidth) / 2;
+    const startX = (canvas.width/dpr - totalButtonWidth) / 2;
 
     // 绘制分享海报按钮（增强版 - 主界面风格）
     if (includeButtons) {
