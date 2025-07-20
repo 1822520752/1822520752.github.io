@@ -27,20 +27,30 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
+            z-index: 1;
         }
         header {
             text-align: center;
             margin-bottom: 30px;
         }
         h1 {
-            font-size: 3rem;
+            font-size: 3.2rem;
             margin-bottom: 15px;
-            background: linear-gradient(45deg, #3498db, #e74c3c);
+            background: linear-gradient(135deg, #3498db, #9b59b6, #e74c3c);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.3);
             font-family: 'Arial Black', 'Microsoft YaHei', sans-serif;
+            letter-spacing: -0.5px;
+        }
+
+        /* 添加新的加粗样式 */
+        .bold-text {
+            font-weight: bold;
+            font-family: 'Arial Black', 'Microsoft YaHei', sans-serif;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         footer {
@@ -60,10 +70,30 @@
         /* Scoreboard styles */
         .scoreboard {
             background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            /* 多层次阴影效果 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.1);
+            /* 高级边框效果 */
+            border: 1px solid rgba(255,255,255,0.5);
+            /* 背景模糊效果 */
+            backdrop-filter: blur(10px);
+            background-color: rgba(255,255,255,0.9);
             padding: 30px;
             margin-bottom: 30px;
+            /* 添加顶部装饰条 */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 添加顶部渐变装饰条 */
+        .scoreboard::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #3498db, #9b59b6, #e74c3c);
         }
         .score-display {
             display: flex;
@@ -79,24 +109,61 @@
         }
         .team {
             text-align: center;
+            /* 添加悬停变换基础 */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 0 10px;
+        }
+
+        .team:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
         }
         .team-name {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    font-weight: 800;
+    color: var(--neutral-800);
+    /* 添加文字描边 */
+    -webkit-text-stroke: 0.5px rgba(0,0,0,0.05);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    font-family: 'Arial Black', 'Microsoft YaHei', sans-serif;
+    /* 添加悬停变换 */
+    transition: all 0.3s ease;
+}
+
+.team-name:hover {
+    color: var(--secondary-color);
+    transform: scale(1.02);
+    text-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+}
         .score {
             font-size: 5rem;
             font-weight: bold;
-            color: var(--primary-color);
+            /* 使用渐变色替代纯色 */
+            background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
             width: 150px;
             height: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 5px solid var(--dark-color);
-            border-radius: 10px;
+            border: 5px solid rgba(255,255,255,0.8);
+            border-radius: 15px;
             margin: 0 auto 20px;
+            /* 增强立体效果 */
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1), inset 0 2px 4px rgba(255,255,255,0.5);
+            /* 添加悬停变换 */
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .score:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 24px rgba(52, 152, 219, 0.15), inset 0 4px 8px rgba(255,255,255,0.6);
         }
         .score-controls {
             display: flex;
@@ -104,27 +171,49 @@
             gap: 10px;
         }
         .btn {
-            padding: 15px 30px;
-            font-size: 1.2rem;
+            padding: 16px 32px;
+            font-size: 1.25rem;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
+            transition: var(--transition-normal);
+            font-weight: 700;
+            background-size: 200% auto;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.05);
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(rgba(255,255,255,0.1), transparent 60%);
+            pointer-events: none;
         }
         .btn-primary {
-            background-color: var(--secondary-color);
+            background-image: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
         }
         .btn-primary:hover {
-            background-color: #2980b9;
+            background-position: right center;
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.35);
+            transform: translateY(-3px) scale(1.02);
         }
         .btn-danger {
-            background-color: var(--accent-color);
+            background-image: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;
         }
         .btn-danger:hover {
-            background-color: #c0392b;
+            background-position: right center;
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.35);
+            transform: translateY(-3px) scale(1.02);
+        }
+        /* 添加按钮点击效果 */
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
         }
         .btn-dark {
             background-color: var(--dark-color);
@@ -132,6 +221,13 @@
         }
         .btn-dark:hover {
             background-color: #2c3e50;
+        }
+        .btn-secondary {
+            background-color: #9b59b6;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #8e44ad;
         }
         .control-panel {
             display: flex;
@@ -141,17 +237,24 @@
         }
         /* Result card styles */
         .result-card {
-            background-color: white;
+            background-color: rgba(255,255,255,0.95);
             border-radius: 15px;
-            /* 添加白边凸框效果 */
-            border: 8px solid white;
-            box-shadow: 0 0 0 1px #e0e0e0, 0 4px 12px rgba(0,0,0,0.15);
-            outline: 1px solid #f0f0f0;
-            outline-offset: -5px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.7);
+            /* 精细化阴影层次 */
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.05);
+            /* 移除过时的白边凸框效果 */
+            outline: none;
+            padding: 25px;
             text-align: center;
             margin-top: 30px;
+            margin-bottom: 25px;
+            /* 添加过渡动画 */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.15), 0 6px 12px rgba(0,0,0,0.08);
         }
         .result-title {
             font-size: 1.8rem;
@@ -227,14 +330,22 @@
             padding: 20px;
         }
         .expense-form {
-            background-color: white;
-            border-radius: 10px;
-            /* 添加白边凸框效果 */
-            border: 8px solid white;
-            box-shadow: 0 0 0 1px #e0e0e0, 0 4px 12px rgba(0,0,0,0.15);
-            outline: 1px solid #f0f0f0;
-            outline-offset: -5px;
-            padding: 20px;
+            background-color: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.7);
+            /* 精细化阴影层次 */
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.05);
+            /* 移除过时的白边凸框效果 */
+            outline: none;
+            padding: 25px;
+            margin-bottom: 25px;
+            /* 添加过渡动画 */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .expense-form:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.15), 0 6px 12px rgba(0,0,0,0.08);
         }
         .form-group {
             margin-bottom: 20px;
@@ -274,14 +385,22 @@
         }
         .expense-result {
             margin-top: 30px;
-            background-color: white;
-            border-radius: 10px;
-            /* 添加白边凸框效果 */
-            border: 8px solid white;
-            box-shadow: 0 0 0 1px #e0e0e0, 0 4px 12px rgba(0,0,0,0.15);
-            outline: 1px solid #f0f0f0;
-            outline-offset: -5px;
-            padding: 20px;
+            background-color: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.7);
+            /* 精细化阴影层次 */
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.05);
+            /* 移除过时的白边凸框效果 */
+            outline: none;
+            padding: 25px;
+            margin-bottom: 25px;
+            /* 添加过渡动画 */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .expense-result:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.15), 0 6px 12px rgba(0,0,0,0.08);
         }
         .expense-summary {
             font-size: 1.2rem;
@@ -309,6 +428,8 @@
             border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
             font-weight: bold;
+            font-family: 'Arial Black', 'Microsoft YaHei', sans-serif;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
         .nav-tab.active {
             border-bottom-color: var(--secondary-color);
@@ -358,17 +479,21 @@
     </style>
 </head>
 <body>
+    <!-- 添加全屏背景Canvas -->
+    <canvas id="mainBackgroundCanvas" style="position: fixed; top: 0; left: 0; z-index: -1;"></canvas>
 
     <div class="container">
         <header>
             <h1>羽毛球极速记分板</h1>
-            <p style="font-family: 'Brush Script MT', cursive; font-size: 1.5em; background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1); -webkit-background-clip: text; color: transparent; text-align: center;">设计者：亍幵 南北<br>开发者：亍幵（张鑫）<br>QQ: 1822520752 (建议联系)</p>
+            <p class="bold-text auto-color">设计者：亍开 南北</p>
+            <p class="bold-text auto-color">开发者：亍开（张鑫）</p>
+            <p class="bold-text auto-color">QQ: 1822520752（建议反馈）</p>
         </header>
 
         <ul class="nav-tabs">
-            <li class="nav-tab active" data-screen="scoreboard">记分板</li>
-            <li class="nav-tab" data-screen="grouping">智能分组</li>
-            <li class="nav-tab" data-screen="expense">费用计算</li>
+            <li class="nav-tab active auto-color" data-screen="scoreboard">记分板</li>
+            <li class="nav-tab auto-color" data-screen="grouping">智能分组</li>
+            <li class="nav-tab auto-color" data-screen="expense">费用计算</li>
         </ul>
 
         <!-- Scoreboard Screen -->
@@ -399,10 +524,12 @@
                     </div>
                 </div>
                 <div class="control-panel">
-                    <button class="btn btn-dark" onclick="resetScore()">重置比分</button>
-                    <button class="btn btn-primary" id="timer-button" onclick="toggleTimer()">开始比赛</button>
-                    <button class="btn btn-primary" onclick="showResultForm()">结束比赛</button>
-                </div>
+            <button id="reset-button" class="btn btn-dark" onclick="resetScore()">重置比分</button>
+            <button id="timer-button" class="btn btn-primary" onclick="toggleTimer()">开始比赛</button>
+            <button id="end-match-button" class="btn btn-danger" onclick="showResultForm()">结束比赛</button>
+            <!-- 添加切换背景按钮 -->
+            <button id="change-bg-button" class="btn btn-secondary" onclick="changeMainBackground()">切换背景</button>
+        </div>
             </div>
 
             <!-- Result Form (Hidden by default) -->
@@ -543,11 +670,14 @@ function resetTimer() {
         let scoreA = 0;
         let scoreB = 0;
         let currentScreen = 'scoreboard';
+        // 在全局变量区域添加
+        let mainBackgroundCanvas = null;
+        let mainBackgroundCtx = null;
         // 添加比赛结束时的时间和时长变量
         let finalMatchTime = 0;
         let finalMatchDate = null;
         // 全局变量 - 添加背景相关变量
-        let currentBackgroundIndex = 0;
+        let currentBackgroundIndex = 2;
         const backgroundStyles = [
             // 1. 蓝色渐变背景
             (ctx, width, height) => {
@@ -617,37 +747,53 @@ function resetTimer() {
                 ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, width, height);
             },
-            // 8. 波浪纹理背景 - 优化版
-            (ctx, width, height) => {
-                ctx.fillStyle = '#87CEEB';
-                ctx.fillRect(0, 0, width, height);
-                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            // 8. 波浪纹理背景 - 增强版
+        (ctx, width, height) => {
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            
+            // 增强波浪细节和层次感
+            const waveCount = 3;
+            const segmentWidth = 50;
+            const amplitudes = [30, 20, 15]; // 不同波浪振幅
+            const speeds = [0.03, 0.05, 0.07]; // 不同波浪速度
+            
+            for(let i=0; i<waveCount; i++){
+                ctx.beginPath();
+                ctx.moveTo(0, height/2 + Math.sin(Date.now()*speeds[i])*amplitudes[i]);
                 
-                // 优化：减少波浪数量并使用贝塞尔曲线替代逐点绘制
-                const waveCount = 3; // 减少波浪数量
-                const segmentWidth = 50; // 增加线段宽度，减少绘制点数
-                
-                for(let i=0; i<waveCount; i++){
-                    ctx.beginPath();
-                    ctx.moveTo(0, height/2 + Math.sin(i*0.5)*30);
-                    
-                    // 优化：使用贝塞尔曲线绘制波浪，减少计算点
-                    for(let x=0; x<width; x+=segmentWidth){
-                        const cp1x = x + segmentWidth/3;
-                        const cp1y = height/2 + Math.sin((x + segmentWidth/3)/50 + i*0.5)*30;
-                        const cp2x = x + segmentWidth*2/3;
-                        const cp2y = height/2 + Math.sin((x + segmentWidth*2/3)/50 + i*0.5)*30;
-                        const endX = x + segmentWidth;
-                        const endY = height/2 + Math.sin(endX/50 + i*0.5)*30;
-                        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
-                    }
-                    
-                    ctx.lineTo(width, height);
-                    ctx.lineTo(0, height);
-                    ctx.closePath();
-                    ctx.fill();
+                for(let x=0; x<width; x+=segmentWidth){
+                    const timeFactor = Date.now() * speeds[i] * 0.001;
+                    const cp1x = x + segmentWidth/3;
+                    const cp1y = height/2 + Math.sin(x*0.02 + timeFactor)*amplitudes[i];
+                    const cp2x = x + segmentWidth*2/3;
+                    const cp2y = height/2 + Math.sin(x*0.02 + Math.PI/3 + timeFactor)*amplitudes[i];
+                    const endX = x + segmentWidth;
+                    const endY = height/2 + Math.sin(x*0.02 + Math.PI/2 + timeFactor)*amplitudes[i];
+                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
                 }
-            },
+                
+                ctx.lineTo(width, height);
+                ctx.lineTo(0, height);
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            // 添加动态光点效果
+            const lightCount = 15;
+            for(let i=0; i<lightCount; i++){
+                const size = Math.random() * 3 + 1;
+                const x = Math.random() * width;
+                const y = Math.random() * height * 0.7;
+                const opacity = Math.random() * 0.5 + 0.2;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                ctx.fill();
+            }
+        },
             // 9. 深色渐变背景
             (ctx, width, height) => {
                 const grad = ctx.createLinearGradient(0, 0, width, height);
@@ -697,9 +843,86 @@ function resetTimer() {
         }
 
         // 页面加载时预缓存背景
-        window.addEventListener('load', cacheBackgrounds);
+        window.addEventListener('load', function() {
+            cacheBackgrounds();
+            
+            // 初始化主界面背景Canvas
+            mainBackgroundCanvas = document.getElementById('mainBackgroundCanvas');
+            mainBackgroundCtx = mainBackgroundCanvas.getContext('2d');
+            
+            // 设置Canvas尺寸为窗口大小
+            resizeMainBackground();
+            // 绘制初始背景
+            drawMainBackground();
+            
+            // 添加窗口大小改变事件监听
+            window.addEventListener('resize', resizeMainBackground);
+        });
 
         // Initialize the app
+        // 添加背景相关函数
+        function resizeMainBackground() {
+            if (!mainBackgroundCanvas) return;
+            mainBackgroundCanvas.width = window.innerWidth;
+            mainBackgroundCanvas.height = window.innerHeight;
+            // 调整大小时重新绘制背景
+            drawMainBackground();
+        }
+
+        function drawMainBackground() {
+    if (!mainBackgroundCtx || !backgroundStyles[currentBackgroundIndex]) return;
+    
+    const width = mainBackgroundCanvas.width;
+    const height = mainBackgroundCanvas.height;
+    
+    // 使用现有的背景样式绘制主界面背景
+    backgroundStyles[currentBackgroundIndex](mainBackgroundCtx, width, height);
+    
+    // 添加文本颜色自适应逻辑
+    updateTextColors();
+}
+
+// 新增：文本颜色自适应函数
+function updateTextColors() {
+    // 获取所有需要自适应颜色的元素
+    const autoColorElements = document.querySelectorAll('.auto-color');
+    
+    autoColorElements.forEach(element => {
+        // 获取元素位置和尺寸
+        const rect = element.getBoundingClientRect();
+        // 计算元素中心位置
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        
+        // 从背景Canvas获取像素数据
+        const pixel = mainBackgroundCtx.getImageData(centerX, centerY, 1, 1).data;
+        // 计算亮度 (0-255)
+        const brightness = (0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2]);
+        
+        // 根据亮度设置文本颜色和阴影
+        if (brightness > 128) {
+            // 亮背景：使用深色文本
+            element.style.color = '#2c3e50';
+            element.style.textShadow = '0 1px 2px rgba(255,255,255,0.8)';
+        } else {
+            // 暗背景：使用白色文本
+            element.style.color = '#ffffff';
+            element.style.textShadow = '0 1px 2px rgba(0,0,0,0.5)';
+        }
+    });
+}
+
+function changeMainBackground() {
+            // 循环切换背景
+            currentBackgroundIndex = (currentBackgroundIndex + 1) % backgroundStyles.length;
+            drawMainBackground();
+            
+            // 同步更新海报背景
+            if (document.getElementById('posterCanvas').style.display !== 'none') {
+                generatePoster();
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Set up navigation tabs
             const navTabs = document.querySelectorAll('.nav-tab');
@@ -723,6 +946,7 @@ function resetTimer() {
             // 初始化时绑定事件监听（只绑定一次）
     const canvas = document.getElementById('posterCanvas');
     canvas.addEventListener('click', handleButtonClick);
+    canvas.addEventListener('mousemove', handleButtonHover);
 
     // Check for offline support
     if ('serviceWorker' in navigator) {
@@ -833,6 +1057,25 @@ function resetTimer() {
     const loserText = '败方';
     const netScore = Math.abs(scoreA - scoreB);
 
+    // 添加背景亮度检测
+    function getContrastColor() {
+        // 获取背景中心区域像素亮度
+        const imageData = ctx.getImageData(canvas.width/2 - 50, canvas.height/2 - 50, 100, 100);
+        const data = imageData.data;
+        let brightnessSum = 0;
+        
+        // 采样计算平均亮度
+        for(let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i+1];
+            const b = data[i+2];
+            brightnessSum += (0.299*r + 0.587*g + 0.114*b);
+        }
+        
+        const avgBrightness = brightnessSum / (data.length/4);
+        return avgBrightness > 128 ? '#222' : '#fff'; // 亮背景用深色，暗背景用白色
+    }
+
     if (!teamANames || !teamBNames) {
         alert('请输入双方选手昵称');
         return;
@@ -853,37 +1096,112 @@ function resetTimer() {
     canvas.height = contentHeight;
 
     // 绘制背景（只绘制一次）
-    if (isBackgroundCached && backgroundCache[currentBackgroundIndex]) {
-        ctx.drawImage(backgroundCache[currentBackgroundIndex], 0, 0);
-    } else {
-        backgroundStyles[currentBackgroundIndex](ctx, canvas.width, canvas.height);
-    }
+            if (isBackgroundCached && backgroundCache[currentBackgroundIndex]) {
+                ctx.drawImage(backgroundCache[currentBackgroundIndex], 0, 0);
+            } else {
+                // 使用主界面相同的渐变背景
+                const bgGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                bgGradient.addColorStop(0, '#f5f7fa');
+                bgGradient.addColorStop(1, '#e4eaf5');
+                ctx.fillStyle = bgGradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 绘制标题
-            ctx.font = 'bold 36px Arial';
-            ctx.fillStyle = '#2c3e50';
+                // 添加纹理效果，与主界面统一
+                ctx.save();
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
+                for (let i = 0; i < 80; i++) {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height;
+                    ctx.beginPath();
+                    ctx.arc(x, y, Math.random() * 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+
+            // 添加半透明覆盖层增强文本可读性
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 添加纹理效果
+            ctx.save();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
+            for (let i = 0; i < 50; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                ctx.beginPath();
+                ctx.arc(x, y, Math.random() * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+
+            // 绘制标题（增强版 - 主界面风格）
+            const titleGradient = ctx.createLinearGradient(0, 40, canvas.width, 80);
+            titleGradient.addColorStop(0, '#3498db');
+            titleGradient.addColorStop(1, '#9b59b6');
+            
+            ctx.font = 'bold 46px "Arial Black", "Microsoft YaHei", sans-serif';
+            ctx.fillStyle = titleGradient;
             ctx.textAlign = 'center';
-            ctx.fillText('羽毛球比赛结果', canvas.width / 2, 60);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 4;
+            ctx.fillText('羽毛球比赛结果', canvas.width / 2, 80);
+            ctx.shadowBlur = 0; // 重置阴影
 
+            // 绘制比分前添加信息卡片背景
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.beginPath();
+            ctx.roundRect(canvas.width/2 - 250, 100, 500, 450, 20);
+            ctx.fill();
+            // 添加多层次阴影效果
+            // ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+            // ctx.shadowBlur = 15;
+            // ctx.shadowOffsetX = 0;
+            // ctx.shadowOffsetY = 8;
+            
             // 绘制选手信息 - 统一字体大小并添加空格对齐
-        ctx.font = '24px Arial';  // 统一字体大小
-        // 胜方文本（添加首尾空格保持长度一致）
-        ctx.fillStyle = scoreA > scoreB ? '#e74c3c' : '#3498db';
-        ctx.fillText(` ${teamANames} ${scoreA > scoreB ? winnerText : loserText} `, canvas.width / 2, 150);
-        // 败方文本（添加首尾空格保持长度一致）
-        ctx.fillStyle = scoreB > scoreA ? '#e74c3c' : '#3498db';
-        ctx.fillText(` ${teamBNames} ${scoreB > scoreA ? winnerText : loserText} `, canvas.width / 2, 220);
+            ctx.font = 'bold 28px "Arial Black", "Microsoft YaHei", sans-serif';  // 统一字体大小
+            const textColor = getContrastColor();
+            // 胜方文本（添加首尾空格保持长度一致）
+            ctx.fillStyle = scoreA > scoreB ? '#e74c3c' : '#3498db';
+            ctx.strokeStyle = textColor;
+            ctx.lineWidth = 2;
+            ctx.strokeText(` ${teamANames} ${scoreA > scoreB ? winnerText : loserText} `, canvas.width / 2, 150);
+            ctx.fillText(` ${teamANames} ${scoreA > scoreB ? winnerText : loserText} `, canvas.width / 2, 150);
+            // 败方文本（添加首尾空格保持长度一致）
+            ctx.fillStyle = scoreB > scoreA ? '#e74c3c' : '#3498db';
+            ctx.strokeText(` ${teamBNames} ${scoreB > scoreA ? winnerText : loserText} `, canvas.width / 2, 220);
+            ctx.fillText(` ${teamBNames} ${scoreB > scoreA ? winnerText : loserText} `, canvas.width / 2, 220);
+            
+            // 重置阴影
+            ctx.shadowBlur = 0;
 
-            // 绘制比分
-            ctx.font = 'bold 60px Arial';
-            ctx.fillStyle = '#2c3e50';
-            ctx.fillText(`${scoreA} - ${scoreB}`, canvas.width / 2, 320);
+            // 绘制比分（增强版）
+            ctx.font = 'bold 90px "Arial Black", "Microsoft YaHei", sans-serif';
+            // 使用主界面相同的渐变效果
+            const scoreGradient = ctx.createLinearGradient(canvas.width/2 - 100, 320, canvas.width/2 + 100, 320);
+            scoreGradient.addColorStop(0, '#3498db');
+            scoreGradient.addColorStop(1, '#e74c3c');
+            ctx.fillStyle = scoreGradient;
+            ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+            ctx.lineWidth = 4;
+            ctx.strokeText(`${scoreA} - ${scoreB}`, canvas.width / 2, 340);
+            ctx.fillText(`${scoreA} - ${scoreB}`, canvas.width / 2, 340);
+            // 添加发光效果
+            ctx.shadowBlur = 0;
 
             // 绘制关键数据
-            ctx.font = '20px Arial';
-            ctx.fillStyle = '#7f8c8d';
+            ctx.font = 'bold 24px "Arial Black", "Microsoft YaHei", sans-serif';
+            ctx.fillStyle = '#333';
+            ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+            ctx.lineWidth = 1.5;
+            ctx.strokeText(`比赛时长: ${matchTime}`, canvas.width / 2, 400);
             ctx.fillText(`比赛时长: ${matchTime}`, canvas.width / 2, 400);
+            ctx.strokeText(`净胜分: ${netScore}分`, canvas.width / 2, 440);
             ctx.fillText(`净胜分: ${netScore}分`, canvas.width / 2, 440);
+            ctx.strokeText(`胜者: ${winner}`, canvas.width / 2, 480);
             ctx.fillText(`胜者: ${winner}`, canvas.width / 2, 480);
 
             // 将时间移到胜者信息下方（Y坐标调整为540）
@@ -896,7 +1214,9 @@ function resetTimer() {
                 minute: '2-digit',
                 second: '2-digit'
             }).replace(/\//g, '-');
-            ctx.fillText(`时间: ${timeStr}`, canvas.width / 2, 540); // 原Y坐标: 1040
+            ctx.font = 'bold 22px "Arial Black", "Microsoft YaHei", sans-serif';
+            ctx.strokeText(`比赛时间: ${timeStr}`, canvas.width / 2, 540);
+            ctx.fillText(`比赛时间: ${timeStr}`, canvas.width / 2, 540); // 原Y坐标: 1040
             
             // 将水印移到时间下方（Y坐标调整为600）
             ctx.save();
@@ -928,24 +1248,61 @@ function resetTimer() {
     const totalButtonWidth = (buttonWidth * 3) + (buttonPadding * 2);
     const startX = (canvas.width - totalButtonWidth) / 2;
 
-    // 绘制分享海报按钮
-    ctx.fillStyle = '#3498db';
-    ctx.fillRect(startX, buttonY, buttonWidth, buttonHeight);
+    // 绘制分享海报按钮（增强版 - 主界面风格）
+    const shareGradient = ctx.createLinearGradient(startX, buttonY, startX, buttonY + buttonHeight);
+    shareGradient.addColorStop(0, '#3498db');
+    shareGradient.addColorStop(1, '#2980b9');
+    ctx.fillStyle = shareGradient;
+    // 添加圆角和阴影
+    ctx.beginPath();
+    ctx.roundRect(startX, buttonY, buttonWidth, buttonHeight, 12);
+    ctx.fill();
+    // 添加高光效果
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.beginPath();
+    ctx.roundRect(startX, buttonY, buttonWidth, buttonHeight/2, 12);
+    ctx.fill();
+    // 按钮文字
     ctx.fillStyle = 'white';
-    ctx.font = '16px Arial';
+    ctx.font = '18px "Arial Black", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('分享海报', startX + buttonWidth/2, buttonY + buttonHeight/2);
+    // ctx.shadowColor = 'rgba(0,0,0,0.2)';
+            // ctx.shadowBlur = 3;
+            // ctx.shadowOffsetX = 0;
+            // ctx.shadowOffsetY = 1;
+            ctx.fillText('分享海报', startX + buttonWidth/2, buttonY + buttonHeight/2);
+    ctx.shadowBlur = 0;
 
-    // 绘制关闭海报按钮
-    ctx.fillStyle = '#e74c3c';
-    ctx.fillRect(startX + buttonWidth + buttonPadding, buttonY, buttonWidth, buttonHeight);
+    // 绘制关闭海报按钮（增强版 - 主界面风格）
+    const closeGradient = ctx.createLinearGradient(startX + buttonWidth + buttonPadding, buttonY, startX + buttonWidth + buttonPadding, buttonY + buttonHeight);
+    closeGradient.addColorStop(0, '#e74c3c');
+    closeGradient.addColorStop(1, '#c0392b');
+    ctx.fillStyle = closeGradient;
+    ctx.beginPath();
+    ctx.roundRect(startX + buttonWidth + buttonPadding, buttonY, buttonWidth, buttonHeight, 12);
+    ctx.fill();
+    // 添加高光效果
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.beginPath();
+    ctx.roundRect(startX + buttonWidth + buttonPadding, buttonY, buttonWidth, buttonHeight/2, 12);
+    ctx.fill();
+    // 按钮文字
     ctx.fillStyle = 'white';
+    ctx.font = '18px "Arial Black", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     ctx.fillText('关闭海报', startX + buttonWidth + buttonPadding + buttonWidth/2, buttonY + buttonHeight/2);
+            ctx.shadowBlur = 0;
 
-    // 绘制切换背景按钮
-    ctx.fillStyle = '#2ecc71';
-    ctx.fillRect(startX + buttonWidth*2 + buttonPadding*2, buttonY, buttonWidth, buttonHeight);
+    // 绘制切换背景按钮（增强版）
+    const bgGradient = ctx.createLinearGradient(startX + buttonWidth*2 + buttonPadding*2, buttonY, startX + buttonWidth*2 + buttonPadding*2, buttonY + buttonHeight);
+    bgGradient.addColorStop(0, '#2ecc71');
+    bgGradient.addColorStop(1, '#27ae60');
+    ctx.fillStyle = bgGradient;
+    ctx.beginPath();
+    ctx.roundRect(startX + buttonWidth*2 + buttonPadding*2, buttonY, buttonWidth, buttonHeight, 10);
+    ctx.fill();
     ctx.fillStyle = 'white';
     ctx.fillText('切换背景', startX + buttonWidth*2 + buttonPadding*2 + buttonWidth/2, buttonY + buttonHeight/2);
 
@@ -1001,7 +1358,38 @@ function resetTimer() {
         }
 
         // 关闭海报
-        function closePoster() {
+        function handleButtonHover(e) {
+    const canvas = document.getElementById('posterCanvas');
+    if (!canvas.buttonAreas) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    
+    // 检测鼠标是否在按钮区域
+    const areas = canvas.buttonAreas;
+    let isOverButton = false;
+    
+    Object.values(areas).forEach(area => {
+        if (x >= area.x && x <= area.x + area.width && y >= area.y && y <= area.y + area.height) {
+            isOverButton = true;
+            canvas.style.cursor = 'pointer';
+        }
+    });
+    
+    if (!isOverButton) {
+        canvas.style.cursor = 'default';
+        // 恢复原始按钮样式
+        if (canvas.isHovered) {
+            generatePoster();
+            canvas.isHovered = false;
+        }
+    }
+}
+
+function closePoster() {
             document.getElementById('posterCanvas').style.display = 'none';
             document.getElementById('posterOverlay').style.display = 'none';
             document.getElementById('closePosterBtn').style.display = 'none';
